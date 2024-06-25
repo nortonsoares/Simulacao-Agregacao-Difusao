@@ -1,0 +1,227 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <math.h>
+#define PI 3.14159265
+
+int **alocar_mtx (int m, int n);
+int inic_mtx(int **p, int n);
+int impressao (int n, int **mat, FILE *fp);
+int nova(int n, int **mat, FILE *fp );
+
+struct est {int mtxn; int **mtxi; int **mtxf;};
+
+int main()
+{
+    int u; // tamanho da matriz do usuario
+    int n; // tamanho da matriz utilizada
+    int **mtx; // matriz
+    int z=0; //contador da matriz atual
+    struct est bloco; //struct com dimensão da matriz, matriz inicial e final
+
+    FILE *fp;
+    fp=fopen ("matriz.txt","w");
+    if (!fp) printf("Erro na abertura do arquivo.");
+
+
+    printf("entre com tamanho da matriz quadrada\ndigite um numero entre 100 e 1000\n\n");
+    scanf("%d",&u);
+    n = u+2;
+
+    bloco.mtxn = u;
+
+    mtx = alocar_mtx(n, n);
+    bloco.mtxi = alocar_mtx(n, n);
+    bloco.mtxf = alocar_mtx(n, n);
+
+    inic_mtx(mtx, n);
+
+    int laux, caux; //variaveis auxiliares para linha e coluna
+    for (laux = 0; laux < n; laux++)  // matriz inicial a ser impressa na struct
+        for (caux = 0;caux < 10; caux++)
+        {
+            bloco.mtxi[laux][caux] = mtx[laux][caux];
+        }
+
+    impressao (n, mtx, fp);
+
+    int m =0;
+    for (z = 0; z<(u-1); )
+    {
+
+    z = z + nova(n, mtx, fp);
+    printf ("\nessa eh a matriz %d\n", z);
+    printf ("\nessa eh a iteracao %d\n", m);
+    m=m+1;
+    impressao (n, mtx, fp);
+    }
+
+    for (laux = 0; laux < n; laux++)
+    {
+        for (caux = 0;caux < n; caux++)
+        {
+            bloco.mtxf[laux][caux] = mtx[laux][caux];
+        }
+    }
+
+    printf("a dimensao da matriz eh %d\n\n",bloco.mtxn);
+    printf("a matriz inicial eh\n\n");
+    for (laux = 1; laux < (n-1); laux++)
+    {
+        for (caux = 1;caux < (n-1); caux++)
+        {
+            printf("%d", bloco.mtxi[laux][caux]);
+        }
+    printf("\n");
+    }
+
+    printf("\na matriz final eh\n\n");
+    for (laux = 1; laux < (n-1); laux++)
+    {
+        for (caux = 1;caux < (n-1); caux++)
+        {
+            printf("%d", bloco.mtxf[laux][caux]);
+        }
+    printf("\n");
+    }
+
+
+    fclose (fp);
+
+
+
+
+
+
+
+    return 0;
+}
+
+
+
+
+int **alocar_mtx (int m, int n) //alocação de memoria para as matrizes
+{
+int **v; /* ponteiro para a matriz */
+int i; /* variavel auxiliar */
+
+if (m < 1 || n < 1) /* verifica parametros recebidos */
+{
+printf("** Erro: Parametro invalido **\n");
+return (NULL);
+}
+v = (int **) calloc (m, sizeof(int *)); /* Um vetor de m ponteiros para int */
+/* aloca as linhas da matriz */
+
+if (v == NULL)
+{
+printf("** Erro: Memoria Insuficiente **");
+return (NULL);
+}
+
+for ( i = 0; i < m; i++ )
+{
+v[i] = (int*) calloc (n, sizeof(int)); /* aloca as colunas da matriz */
+/* m vetores de n int */
+
+if (v[i] == NULL)
+{
+printf("** Erro: Memoria Insuficiente **");
+return (NULL);
+}
+}
+return (v); /* retorna o ponteiro para a matriz */
+}
+
+int inic_mtx(int **mat, int n) // preenche de zeros e coloca um posição = 1 em local aleatório
+{
+    int i, j, count;
+    srand( (unsigned)time(NULL));
+    for (i=0; i<n; i++)
+    {
+        for (j=0; j<n; j++)
+        {
+            mat[i][j]=0;
+        }
+    }
+    mat[1 + (rand() % (n-2))][1 + (rand() % (n-2))]=1;
+
+    return 0;
+}
+
+int impressao (int n, int **mat, FILE *fp) // imprime matriz na tela e no arquivo
+{
+    int i,j;
+    for (i =0; i < n; i++)
+    {
+        for (j=0; j<n; j++)
+        printf("%d", mat[i][j]);
+        printf("\n");
+    }
+    printf("\n");
+
+    for (i =0; i < n; i++)
+    {
+        for (j=0; j<n; j++)
+        fprintf(fp,"%d", mat[i][j]);
+        fprintf(fp,"\n");
+    }
+    printf("\n");
+    fprintf(fp,"\n");
+
+    return 0;
+}
+
+int nova(int n, int **mat, FILE *fp ) // criação de uma partícula não vizinha a uma já existente
+// e movimento da partícula
+{
+    int i, j;
+    srand( (unsigned)time(NULL));
+
+    do
+    {
+    i = 1 + (rand() % (n-2));
+    j = 1 + (rand() % (n-2));
+    }
+    while ((mat[i][j]==1)||(mat[i+1][j]==1)||(mat[i-1][j] == 1)||(mat[i][j+1]==1)||(mat[i][j-1]==1));
+    mat[i][j]=1;
+
+    printf("%d   %d\n",i,j);
+    fprintf(fp,"%d   %d\n",i,j);
+
+
+    // movimento da partícula
+    int a, count, x, y;
+    float u;
+
+
+    while ((mat[i+1][j]==0)&&(mat[i-1][j]==0)&&(mat[i][j+1]==0)&&(mat[i][j-1]==0))
+    {
+    a = rand()%4;
+    u = (PI/2)*a;
+    x = round (cos(u));
+    y = round (sin(u));
+
+    printf("%d   %d\n",y,x);
+    fprintf(fp,"%d   %d\n",y,x);
+
+
+    i = i + y;
+    j = j + x;
+    printf("%d   %d\n",i,j);
+    fprintf(fp,"%d   %d\n",i,j);
+
+    if ((i==0)||(i==(n-1))||(j==0)||j==(n-1))
+    {
+        mat[i-y][j-x]=0;
+        return 0;
+    }
+    else
+    {
+        mat[i][j]=1;
+        mat[i-y][j-x]=0;
+    }
+
+    }
+    return 1;
+}
