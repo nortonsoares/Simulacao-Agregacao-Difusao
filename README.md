@@ -25,17 +25,11 @@ Para delimitar a fronteira do espaço solicitado, foi utilizada uma matriz com d
 ### Exemplo de Matriz
 
 0 0 0 0 0 0 0
-
 0 0 0 0 0 0 0
-
 0 0 1 0 0 0 0
-
 0 0 0 0 0 0 0
-
 0 0 0 0 0 0 0
-
 0 0 0 0 0 0 0
-
 0 0 0 0 0 0 0
 
 
